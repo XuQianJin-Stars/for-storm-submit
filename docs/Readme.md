@@ -1,0 +1,1 @@
+nohup python server.py 9099 > /dev/null 2>&1 &

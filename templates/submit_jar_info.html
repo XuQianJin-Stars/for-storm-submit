@@ -1,0 +1,123 @@
+$def with(jar_path)
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>storm submit</title>
+
+    <link href="../static/css/submit_jar_style.css" rel="stylesheet" type="text/css"/>
+
+    <script src="../static/js/jquery.min.js"></script>
+
+    <script type="text/javascript" src="../static/js/submit_jar_script.js"></script>
+    <script src="../static/js/ajax2server.js"></script>
+
+    <script language="javascript" type="text/javascript">
+        //提交任务时候会调用的函数
+        function check() {
+            hideAllTooltips();
+            var ckh_result = true;
+            if (document.getElementById("main_class").value == '') {
+                showTooltips('main_class_input', '主类不能为空!');
+                ckh_result = false;
+            }
+            if (document.getElementById("topo_name").value == '') {
+                showTooltips('topo_name_input', '拓扑名字不能为空');
+                ckh_result = false;
+            }
+            if (document.getElementById("run_jar").value == '') {
+                showTooltips('run_jar_input', 'jar路径不正确');
+                ckh_result = false;
+            }
+            //check通过之后就开始检测submit-build日志,否则不检测,前端校验不通过不提交form表单
+            if (ckh_result) {
+                //ajax移步请求执行storm shell
+                storm_submit_excute()
+
+                //每s轮训submit日志接口一次
+                setInterval(function () {
+                    query_submit_log();
+                }, 1000);
+
+                //提示：任务已提交
+                alert("任务已提交,查看执行INFO!")
+            }
+            return ckh_result;
+        }
+
+    </script>
+</head>
+<body>
+
+<div class='body_main'>
+
+    <div class='box_title'>
+        <div class='text_content'>
+            <h1>storm jar 提交</h1>
+        </div>
+    </div>
+
+    <div class='box_main'>
+        <div id="register" class="register">
+            <!--表单-->
+            <form id="base_form" action="" target="id_iframe" method="post" onSubmit="return check();">
+                <div id="form_submit" class="form_submit">
+                    <div class="fieldset">
+                        <!--c1-->
+                        <div class="field-group">
+                            <label class="required title">主类 Main Class</label>
+                            <span class="control-group" id="main_class_input">
+								<div class="input_add_long_background">
+									<input class="register_input" type="text" id="main_class" name="main_class"
+                                           value="">
+								</div>
+							</span>
+                            <label class="tips">运行的topo的主类:cn.apache.storm.HelloWord</label>
+                        </div>
+                        <!--c2-->
+                        <div class="field-group">
+                            <label class="required title">拓扑名字</label>
+                            <span class="control-group" id="topo_name_input">
+								<div class="input_add_long_background">
+									<input class="register_input" type="text" id="topo_name" name="topo_name"
+                                           maxLength="30" value="">
+								</div>
+							</span>
+                            <label class="tips">输入作业在storm集群上的拓扑名字</label>
+                        </div>
+                        <!--c3-->
+                        <div class="field-group">
+                            <label class="required title">运行jar文件</label>
+                            <span class="control-group" id="run_jar_input">
+								<div class="input_add_long_background">
+									<input class="register_input" disabled type="text" id="run_jar" name="run_jar"
+                                           maxLength="200" value="$jar_path"/>
+								</div>
+							</span>
+                            <label class="tips">前页所选择的要提交的[上传jar文件]</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="div_submit" class="div_submit">
+                    <div class='div_submit_button'>
+                        <input id="submit" type="submit" value="提交任务" class='button_button disabled'>
+                    </div>
+                </div>
+            </form>
+            <iframe id="id_iframe" name="id_iframe" style="display:none;"></iframe>
+
+            <!--打印信息-->
+            <div style="text-align:center;">
+                <textarea id="submit_info"
+                          style="width:600px;height:300px;border-style:none;resize:none;font-size:20px;" disabled
+                          data-value=""></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class='box_bottom'></div>
+
+</div>
+
+</body>
+</html>
